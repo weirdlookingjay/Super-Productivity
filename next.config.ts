@@ -1,7 +1,8 @@
-import type { NextConfig } from "next";
+/* eslint-disable @typescript-eslint/no-require-imports */
+// import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  /* config options here */
-};
+const nextConfig = {};
 
-export default nextConfig;
+const withNextIntl = require("next-intl/plugin")("./i18n.ts");
+
+export default withNextIntl(nextConfig);
