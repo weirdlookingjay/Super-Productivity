@@ -1,5 +1,46 @@
 {
   "Index": {
     "title": "Hello World"
+  },
+  "AUTH": {
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "USERNAME": "Username",
+    "SIGN_IN": {
+      "TITLE": "Sign In",
+      "DESC": "Welcome back to...",
+      "SUBMIT_BTN": "Sign In",
+      "FORGOT_PASSWORD": "Forgot Password?",
+      "DONT_HAVE_ACCOUNT": {
+        "FIRST": "Dont't have an account?",
+        "SECOND": "Sign Up"
+      },
+      "TERMS": {
+        "FIRST": "By signing in, you agree to our ",
+        "SECOND": "Terms of Service."
+      },
+      "PROVIDERS": {
+        "GOOGLE": "Sign in with Google",
+        "GITHUB": "Sign in with Github"
+      }
+    },
+    "SIGN_UP": {
+      "TITLE": "Sign Up",
+      "DESC": "Create your account",
+      "SUBMIT_BTN": "Sign up",
+      "FORGOT_PASSWORD": "Forgot Password?",
+      "HAVE_ACCOUNT": {
+        "FIRST": "Already have an account?",
+        "SECOND": "Sign In"
+      },
+      "TERMS": {
+        "FIRST": "By signing up, you agree to our ",
+        "SECOND": "Terms of Service."
+      },
+      "PROVIDERS": {
+        "GOOGLE": "Sign in with Google",
+        "GITHUB": "Sign in with Github"
+      }
+    }
   }
 }
