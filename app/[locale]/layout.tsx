@@ -4,8 +4,10 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { notFound } from "next/navigation";
 import { getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
+import { AuthProvider } from "@/providers/AuthProvuder";
+import { Toaster } from "@/components/ui/toaster";
 
-const locales = ["en"];
+const locales = ["en", "sp"];
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -19,7 +21,8 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: { locale: string };
 }>) {
-  const { locale } = await params;
+  const resolvedParams = await Promise.resolve(params);
+  const locale = resolvedParams.locale;
 
   const isValidLocale = locales.some((cur) => cur === locale);
 
@@ -27,15 +30,18 @@ export default async function RootLayout({
     notFound();
   }
 
-  const messages = await getMessages({ locale });
+  const messages = await getMessages(locale);
 
   return (
     <html lang={locale} suppressHydrationWarning>
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <ThemeProvider attribute={"class"} defaultTheme="system" disableTransitionOnChange>
-            {children}
-          </ThemeProvider>
+          <AuthProvider>
+            <ThemeProvider attribute={"class"} defaultTheme="system" disableTransitionOnChange>
+              <Toaster />
+              {children}
+            </ThemeProvider>
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

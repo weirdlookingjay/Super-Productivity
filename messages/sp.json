@@ -48,7 +48,7 @@
       "SIGN_UP": "Account created successfully",
       "SIGN_IN": "Signed in successfully"
     },
-    "ERRORS": {
+    "ERROR": {
       "DEFAULT": "Oh no, something went wrong. Please try again.",
       "TAKEN_USERNAME": "Username is already taken",
       "TAKEN_EMAIL": "Email is already taken",

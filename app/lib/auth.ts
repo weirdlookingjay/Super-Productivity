@@ -1,11 +1,13 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { getServerSession, type NextAuthOptions } from "next-auth";
+import { getServerSession, NextAuthOptions } from "next-auth";
 import { db } from "./db";
 import { Adapter } from "next-auth/adapters";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
+import AppleProvider from "next-auth/providers/apple";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
+import { generateFromEmail } from "unique-username-generator";
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -20,29 +22,48 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      async profile(profile) {
+        const username = generateFromEmail(profile.email, 5);
+        return {
+          id: profile.sub,
+          username,
+          name: profile.given_name ? profile.given_name : profile.name,
+          surname: profile.family_name ? profile.family_name : "",
+          email: profile.email,
+          image: profile.picture,
+        };
+      },
     }),
     GithubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      async profile(profile) {
+        const username = generateFromEmail(profile.email, 5);
+        const fullName = profile.name.split(" ");
+        return {
+          id: profile.id,
+          username: profile.login ? profile.login : username,
+          name: fullName.at(0),
+          surname: fullName.at(1),
+          email: profile.email,
+          image: profile.avatar_url,
+        };
+      },
     }),
     CredentialsProvider({
       name: "credentials",
       credentials: {
-        username: {
-          label: "username",
-          type: "text",
-          placeholder: "Username",
-        },
-        email: { label: "Email", type: "email", placeholder: "Email" },
+        username: { label: "Username", type: "text", placeholder: "Username" },
+        email: { label: "Email", type: "text", placeholder: "Email" },
         password: {
           label: "Password",
           type: "password",
           placeholder: "Password",
         },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         if (!credentials?.email || !credentials.password) {
-          throw new Error("Please enter email and password");
+          throw new Error("Please enter email and password.");
         }
 
         const user = await db.user.findUnique({
@@ -52,16 +73,19 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user || !user?.hashedPassword) {
-          throw new Error("Please enter a valid email or password");
+          throw new Error("User was not found, Please enter valid email");
         }
-
         const passwordMatch = await bcrypt.compare(
           credentials.password,
           user.hashedPassword
         );
+
         if (!passwordMatch) {
-          throw new Error("Please enter a valid email or password");
+          throw new Error(
+            "The entered password is incorrect, please enter the correct one."
+          );
         }
+
         return user;
       },
     }),
@@ -75,6 +99,8 @@ export const authOptions: NextAuthOptions = {
         session.user.email = token.email;
         session.user.image = token.picture;
         session.user.username = token.username;
+        session.user.surname = token.surname;
+        session.user.completedOnboarding = !!token.completedOnboarding;
       }
 
       const user = await db.user.findUnique({
@@ -84,21 +110,22 @@ export const authOptions: NextAuthOptions = {
       });
 
       if (user) {
+        session.user.image = user.image;
+        session.user.completedOnboarding = user.completedOnboarding;
         session.user.username = user.username;
-        sessionStorage.user.image = user.image;
       }
 
       return session;
     },
-
     async jwt({ token, user }) {
       const dbUser = await db.user.findFirst({
         where: {
           email: token.email,
         },
       });
+
       if (!dbUser) {
-        token.id = user.id;
+        token.id = user!.id;
         return token;
       }
 

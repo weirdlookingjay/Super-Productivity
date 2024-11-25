@@ -1,3 +1,5 @@
+'use client'
+
 import Image from "next/image";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { useTranslations } from "next-intl";
@@ -11,6 +13,7 @@ interface Props {
 
 export const AuthCard = ({ signInCard }: Props) => {
     const t = useTranslations("AUTH");
+
     return (
         <>
             <Card className="w-full sm:min-w[28rem] sm:w-auto">

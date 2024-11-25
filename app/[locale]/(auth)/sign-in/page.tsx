@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "Sign in",
 };
 
-const SignIn = () => {
+const SignIn = async () => {
   return <AuthCard signInCard />;
 };
 
