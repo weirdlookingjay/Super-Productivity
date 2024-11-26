@@ -1,11 +1,16 @@
 import { checkIfUserCompletedOnboarding } from "@/app/lib/checkIfUserCompletedOnboarding"
+import { AdditionalInfoSection } from "@/components/onboarding/AdditionalInfoSection";
+import { SummarySection } from "@/components/onboarding/SummarySection";
+import { OnboardingFormProvider } from "@/context/OnboardingForm";
 
 
 const OnboardingPage = async () => {
     const session = await checkIfUserCompletedOnboarding("/onboarding");
-    console.log(session)
     return (
-        <div>page</div>
+        <OnboardingFormProvider session={session}>
+            <AdditionalInfoSection />
+            <SummarySection />
+        </OnboardingFormProvider>
     )
 }
 
