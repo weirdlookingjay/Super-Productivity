@@ -17,6 +17,18 @@ import { useForm } from "react-hook-form";
 import { imageSchema, ImageSchema } from "@/schema/imageSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
+import { useUploadThing } from "@/lib/uploadthing";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import { User as UserType } from "@prisma/client";
+import { useRouter } from "next-intl/client";
+import { useSession } from "next-auth/react";
+import { LoadingState } from "../loadingState";
+import { useToast } from "@/hooks/use-toast";
+import { useTranslations } from "next-intl";
+import { useOnboardingForm } from "@/context/OnboardingForm";
+import { ActionType } from "@/types/onBoardingContext";
+
 
 interface Props {
     profileImage?: string | null;
@@ -25,6 +37,14 @@ interface Props {
 export const AddUserImage = ({ profileImage }: Props) => {
     const [imagePreview, setImagePreview] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
+    const [open, setOpen] = useState(false)
+    const router = useRouter()
+    const { update } = useSession()
+    const { toast } = useToast();
+    const m = useTranslations("MESSAGES");
+    const t = useTranslations("CHANGE_PROFILE_IMAGE");
+
+    const { dispatch } = useOnboardingForm();
 
     const form = useForm<ImageSchema>({
         resolver: zodResolver(imageSchema),
@@ -71,12 +91,60 @@ export const AddUserImage = ({ profileImage }: Props) => {
         }
     }, [imagePreview, profileImage]);
 
+    const { startUpload, isUploading } = useUploadThing("imageUploader", {
+        onUploadError: (error) => {
+            toast({
+                title: m("ERRORS.UPLOAD_TITLE"),
+                variant: "destructive",
+            });
+        },
+        onClientUploadComplete: (data) => {
+            if (data) uploadProfileImage(data[0].url);
+            else {
+                toast({
+                    title: m("ERRORS.IMAGE_PROFILE_UPDATE"),
+                    variant: "destructive",
+                });
+            }
+        },
+    })
+
+    const { mutate: uploadProfileImage, isPending } = useMutation({
+        mutationFn: async (profileImage: string) => {
+            const { data } = await axios.post(`/api/profile/profileImage`, {
+                profileImage,
+            });
+            return data as UserType;
+        },
+        onError: (err) => {
+            toast({
+                title: m("ERRORS.IMAGE_PROFILE_UPDATE"),
+                variant: "destructive",
+            });
+        },
+        onSuccess: async (data) => {
+            toast({
+                title: m("SUCCESS.IMAGE_PROFILE_UPDATE"),
+            });
+            setOpen(false);
+            await update();
+            router.refresh();
+            dispatch({ type: ActionType.PROFILEIMAGE, payload: data.image });
+        },
+        mutationKey: ["updateProfileImage"],
+    })
+
+    const onSubmit = async (data: ImageSchema) => {
+        const image: File = data.image;
+        await startUpload([image]);
+    }
+
     return (
         <div className="w-full flex flex-col justify-center items-center gap-2">
             <p className="text-sm text-muted-foreground">
                 Add a photo to your profile
             </p>
-            <Dialog>
+            <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
                     <Button className="relative bg-muted w-16 h-16 md:h-20 md:w-20 rounded-full flex justify-center items-center text-muted-foreground">
                         {profileImage ? (
@@ -85,7 +153,7 @@ export const AddUserImage = ({ profileImage }: Props) => {
                                 src={profileImage}
                                 alt=""
                                 fill
-                                className="object-cover w-full h-full"
+                                className="object-cover rounded-full"
                             />
                         ) : (
                             <User />
@@ -113,7 +181,7 @@ export const AddUserImage = ({ profileImage }: Props) => {
                         />
                     )}
                     <Form {...form}>
-                        <form>
+                        <form onSubmit={form.handleSubmit(onSubmit)}>
                             <FormField
                                 control={form.control}
                                 name="image"
@@ -155,11 +223,11 @@ export const AddUserImage = ({ profileImage }: Props) => {
                                 </Button>
                                 <Button
                                     type="submit"
-                                    disabled={!imageOptions.canSave}
+                                    disabled={!imageOptions.canSave || isUploading || isPending}
                                     variant={imageOptions.canSave ? "default" : "secondary"}
                                     className={`rounded-full w-12 h-12 p-2 ${imageOptions.canSave ? "text-white" : "text-muted-foreground"}`}
                                 >
-                                    <Check size={18} />
+                                    {isPending || isUploading ? <LoadingState /> : <Check size={18} />}
                                 </Button>
                             </div>
                         </form>

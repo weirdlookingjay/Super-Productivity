@@ -19,6 +19,7 @@ import { ArrowRight } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { AddUserImage } from "../AddUserImage";
 import { useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 interface Props {
     profileImage?: string | null;
@@ -26,6 +27,7 @@ interface Props {
 
 export const FirstStep = ({ profileImage }: Props) => {
     const { currentStep, name, surname, dispatch } = useOnboardingForm();
+    const session = useSession();
 
     const form = useForm<AdditionalUserInfoFirstPart>({
         resolver: zodResolver(additionalUserInfoFirstPart),
@@ -38,9 +40,17 @@ export const FirstStep = ({ profileImage }: Props) => {
     useEffect(() => {
         dispatch({
             type: ActionType.PROFILEIMAGE,
-            payload: profileImage as string | null | undefined,
+            payload: session.data?.user.image as string
         })
-    }, [profileImage, dispatch])
+    }, [session.data?.user.image, dispatch])
+
+
+    // useEffect(() => {
+    //     dispatch({
+    //         type: ActionType.PROFILEIMAGE,
+    //         payload: profileImage as string | null | undefined,
+    //     })
+    // }, [profileImage, dispatch])
 
     const onSubmit = (data: AdditionalUserInfoFirstPart) => {
         dispatch({ type: ActionType.NAME, payload: data.name! });

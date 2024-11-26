@@ -45,20 +45,36 @@
   },
   "MESSAGES": {
     "SUCCESS": {
-      "SIGN_UP": "Account created successfully",
-      "SIGN_IN": "Signed in successfully"
+      "SIGN_UP": "Account was created!",
+      "SIGN_IN": "You have been logged in!",
+      "IMAGE_PROFILE_UPDATE": "Your profile image has been updated!",
+      "IMAGE_PROFILE_DELETE": "Your profile image has been deleted!",
+      "ONBOARDING_COMPLETE": "Welcome to Super Productive!",
+      "PASSWORD_CHANGED": "Password has been changed!",
+      "NEW_WORKSPACE": "The workspace has been created!"
     },
     "ERRORS": {
-      "DEFAULT": "Oh no, something went wrong. Please try again.",
-      "TAKEN_USERNAME": "Username is already taken",
-      "TAKEN_EMAIL": "Email is already taken",
-      "DB_ERROR": "Wer are having some issues. Please try again later.",
-      "WRONG_DATA": "Incorrect email or password",
-      "NO_USER": "User not found. Please enter a valud email",
-      "WRONG_PASSWORD": "Incorrect password"
+      "DEFAULT": "Oh no..Something went wrong. Please try again",
+      "TAKEN_USERNAME": "This username is already taken",
+      "TAKEN_EMAIL": "This email is already in use...",
+      "DB_ERROR": "We are currently having problems. Please try again later",
+      "WRONG_DATA": "The data you provided is incorrect. Please provide the correct ones.",
+      "NO_USER": "User was not found. Please enter a valid email",
+      "WRONG_PASSWORD": "The entered password is incorrect. Please enter the correct one.",
+      "IMAGE_PROFILE_UPDATE": "Failed to update your profile image. Please try again",
+      "IMAGE_PROFILE_DELETE": "Failed to delete your profile image. Please try again.",
+      "UPLOAD_FAILED": "Failed to upload your file. Please try again.",
+      "WORKSPACE_ICON_ADDED": "Failed to add workspace icon. Please try again",
+      "NO_USER_API": "User not Found",
+      "UNAUTHORIZED": "Unauthorized. Please sign in!",
+      "TOO_MANY_WORKSPACES": "The limit on the number of workspaces that can be created has been reached"
     },
     "PENDING": {
       "LOADING": "Please wait..."
     }
+  },
+  "CHANGE_PROFILE_IMAGE": {
+    "TITLE": "Send a photo!",
+    "BUTTON": "Choose a photo"
   }
 }
